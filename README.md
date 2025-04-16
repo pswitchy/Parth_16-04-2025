@@ -26,11 +26,12 @@ This service monitors restaurant store uptime based on polling data, business ho
 
 https://drive.google.com/file/d/1Jsmhm_xXQFYhHMYkzEkfYOzgInyhcLZY/view?usp=drive_link
 
-## Potential Improvements / Production Considerations
+## Potential Improvements
 
-1.  **Dedicated Task Queue:** For enhanced scalability, reliability (retries, persistence), and monitoring in production, replace FastAPI's `BackgroundTasks` + `multiprocessing` with a dedicated system like **Celery** + **Redis/RabbitMQ**. This decouples task processing from the API server.
-2.  **Async Database:** Use `asyncpg` and SQLAlchemy's async support for non-blocking database operations, improving API concurrency, especially under high load or when combined with an async task queue.
-3.  **Database Tuning:** Ensure optimal indexing, consider connection pool tuning (especially with multiprocessing/Celery), and potentially more advanced query optimization for very large datasets.
+1.  **Dedicated Task Queue:** For enhanced scalability, reliability (retries, persistence), and monitoring in production, I can replace FastAPI's `BackgroundTasks` + `multiprocessing` with a dedicated system like **Celery** + **Redis/RabbitMQ**. This decouples task processing from the API server.
+2. **Business Hour Calculation Optimization**: get_utc_business_intervals is called for every day within potentially long status intervals. For a week-long report, this might be called 7 times per status interval. It could potentially be optimized by calculating the UTC intervals for the entire week once per store at the beginning, creating a data structure (like a sorted list of UTC intervals) representing the full week's business hours. Then, the intersection logic would compare the status interval against this pre-calculated weekly schedule. This trades off potentially higher initial memory use for fewer repeated timezone conversions.
+3. **Handling Sparse Data**: The interpolation assumes status is constant between polls. If polls are very infrequent (e.g., many hours apart), the calculated uptime/downtime might not accurately reflect reality. The logic itself is sound based on the assumption, but the quality of the result depends on poll frequency. This isn't strictly a logic flaw, but an inherent limitation based on the input data's nature. I could add logging if intervals are excessively long.
+4. **"Current Time" Definition**: Using the max timestamp from the store_status table is reasonable, but if data loading lags, the report might be significantly behind real-time. An alternative could be to use datetime.now(pytz.utc) or allow passing a specific end-time parameter to the report trigger.
 
 ## CLI Output
 
