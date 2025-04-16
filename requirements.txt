@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pandas
+pytz
+python-dotenv
+aiofiles
+python-multipart
+psycopg2-binary
+asyncpg
+pydantic-settings
