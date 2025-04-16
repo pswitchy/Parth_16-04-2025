@@ -11,35 +11,6 @@ This service monitors restaurant store uptime based on polling data, business ho
     *   `/get_report/{report_id}`: Polls for report status or downloads the completed CSV report.
 *   Default Handling: Assumes stores are open 24/7 if business hours are missing and uses 'America/Chicago' if timezone is missing.
 
-## API Usage
-
-1.  **Trigger Report Generation:**
-    *   Send a POST request to `/trigger_report`.
-    *   Example using `curl`:
-        ```bash
-        curl -X POST http://127.0.0.1:8000/trigger_report
-        ```
-    *   The response will contain a `report_id`:
-        ```json
-        {
-          "report_id": "some-unique-uuid-string"
-        }
-        ```
-
-2.  **Get Report Status / Download CSV:**
-    *   Send a GET request to `/get_report/{report_id}`, replacing `{report_id}` with the ID received.
-    *   Example using `curl`:
-        ```bash
-        curl http://127.0.0.1:8000/get_report/some-unique-uuid-string
-        ```
-    *   **If Running:** Response `{"status": "Running"}`.
-    *   **If Failed:** Response `{"status": "Failed"}`.
-    *   **If Complete:** The response will be the CSV file content. Save it:
-        ```bash
-        curl http://127.0.0.1:8000/get_report/some-unique-uuid-string -o report_output.csv
-        ```
-    *   Generated CSV files are also stored in the `reports/` directory.
-
 ## Design Notes & Logic
 
 *   **Data Model:** Uses SQLAlchemy ORM with `String` type for `store_id` to accommodate UUIDs.
